@@ -55,7 +55,7 @@ app.post("/shipments/:serviceID", async function (request, response) {
 app.get("/shipments/:serviceID", async function (request, response) {
     var shipments = await ShipmentModel.find({ serviceID: request.params.serviceID }).lean();
     shipments = shipments.map((shipment) => {
-        const { __v, _id, serviceID, ...updatedShipment } = shipment; return updatedShipment
+        const { __v, _id, serviceID, ...updatedShipment } = shipment; return updatedShipment;
     });
     if (shipments.length != 0) response.status(200).send(shipments);
     else response.status(200).end();

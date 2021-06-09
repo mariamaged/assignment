@@ -119,45 +119,8 @@ const ups = {
         ).required()
     })
 
-function validationRules(serviceID) {
-    // Empty validation middlewares array getting filled with 9 middleware.
-    // 1. First middleware checks the Service Type (data type is string and belongs to the enum allowed).
-    // 2. The following 4 middleware check width/height/length/weight units (data type is string and value is equal to the value allowed.)
-    // 3. The following 4 middleware check width/height/length/weight value (data type is number).
-    var validator = [];
-
-    if (serviceID === 'fedex') serviceID = fedex;
-    else serviceID = ups;
-
-    validator.push(body(serviceID.serviceTypeProperty));
-    validator.push(body(`${serviceID.packageInfoProperty}.width.unit`));
-    validator.push(body(`${serviceID.packageInfoProperty}.height.unit`));
-    validator.push(body(`${serviceID.packageInfoProperty}.length.unit`));
-    validator.push(body(`${serviceID.packageInfoProperty}.weight.unit`));
-
-    validator.map(function (v) { v.optional().isString().withMessage(mustache.render(dataTypeTemplate, { datatype: "String" })) });
-
-    validator[0] = validator[0].isIn(serviceID.serviceTypeList)
-        .withMessage(mustache.render(serviceTemplate, { service: serviceID.serviceTypeFormatted, list: serviceID.serviceTypeList }));
-    validator[1] = validator[1].matches(serviceID.widthUnit)
-        .withMessage(mustache.render(detailsTemplate, { quantity: "Width", unit: serviceID.widthUnit }))
-    validator[2] = validator[2].matches(serviceID.heightUnit)
-        .withMessage(mustache.render(detailsTemplate, { quantity: "Height", unit: serviceID.heightUnit }))
-    validator[3] = validator[3].matches(serviceID.lengthUnit)
-        .withMessage(mustache.render(detailsTemplate, { quantity: "Length", unit: serviceID.lengthUnit }))
-    validator[4] = validator[4].matches(serviceID.weightUnit)
-        .withMessage(mustache.render(detailsTemplate, { quantity: "Weight", unit: serviceID.weightUnit }))
-
-    validator.push(body(`${serviceID.packageInfoProperty}.width.value`).optional().isNumeric().withMessage(mustache.render(dataTypeTemplate, { datatype: "Numeric" })));
-    validator.push(body(`${serviceID.packageInfoProperty}.height.value`).optional().isNumeric().withMessage(mustache.render(dataTypeTemplate, { datatype: "Numeric" })));
-    validator.push(body(`${serviceID.packageInfoProperty}.length.value`).optional().isNumeric().withMessage(mustache.render(dataTypeTemplate, { datatype: "Numeric" })));
-    validator.push(body(`${serviceID.packageInfoProperty}.weight.value`).optional().isNumeric().withMessage(mustache.render(dataTypeTemplate, { datatype: "Numeric" })));
-
-    return validator;
-}
-
-
-// Aggregate all error messages related to a property into an array of messages.
+// Aggregate all error messages of missing fields into one array, and all validation error messages into one array. Return an object consisting of these arrays.
+// All validation error message related to a single property are compiled together.
 function updateErrorMessages(errorsArray) {
     var missingFieldsErrors = [], validationErrors = [];
     errorsArray.forEach((error) => {
@@ -185,7 +148,6 @@ function updateErrorMessages(errorsArray) {
     return { missingFieldsErrors: missingFieldsErrors, validationErrors: validationErrors };
 }
 module.exports = {
-    validationRules,
     fedexSchema,
     upsSchema,
     updateErrorMessages
