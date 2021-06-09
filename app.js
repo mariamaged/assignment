@@ -29,7 +29,7 @@ app.use(express.json());
 app.post("/shipments/:serviceID", async function (request, response) {
     const serviceID = request.params.serviceID, req = request.body;
     if (!(Object.keys(map).includes(serviceID)))
-        return response.status(400).send("Service IDs should be one of the following: " + allowedServiceIDs);
+        return response.status(400).send("Service IDs should be one of the following: " + Object.keys(map));
 
     var serviceDetails = map[serviceID];
     var result = serviceDetails.schema.validate(req, {
@@ -52,8 +52,19 @@ app.post("/shipments/:serviceID", async function (request, response) {
     response.status(200).send(`Shipment to ${serviceID} completed successfully!`);
 });
 
-app.get("/shipments/:serviceID", async function (request, response) {
-    var shipments = await ShipmentModel.find({ serviceID: request.params.serviceID }).lean();
+app.get("/shipments", async function (request, response) {
+    const serviceID = request.query.serviceID;
+    if (serviceID && !(Object.keys(map).includes(serviceID)))
+        return response.status(400).send("Service IDs should be one of the following: " + Object.keys(map));
+
+    var shipments;
+    if (serviceID) {
+        shipments = await ShipmentModel.find({ serviceID: serviceID }).lean();
+    }
+    else {
+        shipments = await ShipmentModel.find({}).lean();
+    }
+
     shipments = shipments.map((shipment) => {
         const { __v, _id, serviceID, ...updatedShipment } = shipment; return updatedShipment;
     });
