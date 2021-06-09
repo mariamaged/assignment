@@ -60,14 +60,17 @@ app.get("/shipments", async function (request, response) {
     var shipments;
     if (serviceID) {
         shipments = await ShipmentModel.find({ serviceID: serviceID }).lean();
+        shipments = shipments.map((shipment) => {
+            const { __v, _id, serviceID, ...updatedShipment } = shipment; return updatedShipment;
+        });
     }
     else {
         shipments = await ShipmentModel.find({}).lean();
+        shipments = shipments.map((shipment) => {
+            const { __v, _id, ...updatedShipment } = shipment; return updatedShipment;
+        });
     }
 
-    shipments = shipments.map((shipment) => {
-        const { __v, _id, serviceID, ...updatedShipment } = shipment; return updatedShipment;
-    });
     if (shipments.length != 0) response.status(200).send(shipments);
     else response.status(200).end();
 });
