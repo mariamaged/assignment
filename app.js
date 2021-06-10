@@ -2,24 +2,11 @@ var http = require("http");
 var express = require("express");
 var logger = require("morgan");
 var mongoose = require('mongoose');
-var { fedexSchema, upsSchema, updateErrorMessages } = require('./validator.js');
+var { ErrorFactory, allowedServices } = require('./validator.js');
 var ShipmentModel = require("./models/shipment.js");
 
 require('dotenv').config()
 var app = express();
-
-let map = {
-    fedex: {
-        schema: fedexSchema,
-        serviceType: "carrierServiceID",
-        packageInfo: "packageDetails"
-    },
-    ups: {
-        schema: upsSchema,
-        serviceType: "shipmentServiceID",
-        packageInfo: "package"
-    }
-}
 
 app.set("port", process.env.PORT || 3000);
 
@@ -28,42 +15,51 @@ app.use(express.json());
 
 app.post("/shipments/:serviceID", async function (request, response) {
     const serviceID = request.params.serviceID, req = request.body;
-    if (!(Object.keys(map).includes(serviceID)))
-        return response.status(400).send("Service IDs should be one of the following: " + Object.keys(map));
 
-    var serviceDetails = map[serviceID];
-    var result = serviceDetails.schema.validate(req, {
+    // Case 1: Service ID not allowed.
+    if (!allowedServices.includes(serviceID))
+        return response.status(400).send(ErrorFactory.createError({ endpoint: request.method + '-' + request.url }));
+
+    var factory = ErrorFactory.createError({ endpoint: request.method + '-' + request.url, serviceID: serviceID });
+    var result = factory.schema.validate(req, {
         abortEarly: false,
         allowUnknown: true,
         stripUnknown: true
     });
 
+    // Case 2: Request body has validation errors and/or missing fields.
     if (result.error)
-        return response.status(400).json(updateErrorMessages(result.error.details));
+        return response.status(400).json(factory.updateErrorMessages(result.error.details));
 
+    // Case 3: Shipment added to database and a success response message sent back.
+    var serviceType = req[factory.propertyNames.serviceType], packageInfo = req[factory.propertyNames.packageInfo];
     await new ShipmentModel(
         {
-            serviceID: serviceID, serviceType: req[serviceDetails.serviceType],
-            widthUnit: req[serviceDetails.packageInfo].width.unit, widthValue: req[serviceDetails.packageInfo].width.value,
-            heightUnit: req[serviceDetails.packageInfo].height.unit, heightValue: req[serviceDetails.packageInfo].height.value,
-            lengthUnit: req[serviceDetails.packageInfo].length.unit, lengthValue: req[serviceDetails.packageInfo].length.value,
-            weightUnit: req[serviceDetails.packageInfo].weight.unit, weightValue: req[serviceDetails.packageInfo].weight.value
+            serviceID: serviceID, serviceType: serviceType,
+            widthUnit: packageInfo.width.unit, widthValue: packageInfo.width.value,
+            heightUnit: packageInfo.height.unit, heightValue: packageInfo.height.value,
+            lengthUnit: packageInfo.length.unit, lengthValue: packageInfo.length.value,
+            weightUnit: packageInfo.weight.unit, weightValue: packageInfo.weight.value
         }).save();
     response.status(200).send(`Shipment to ${serviceID} completed successfully!`);
 });
 
 app.get("/shipments", async function (request, response) {
     const serviceID = request.query.serviceID;
-    if (serviceID && !(Object.keys(map).includes(serviceID)))
-        return response.status(400).send("Service IDs should be one of the following: " + Object.keys(map));
+
+    // Case 1: Service ID not allowed..
+    if (serviceID && !allowedServices.includes(serviceID))
+        return response.status(400).send(ErrorFactory.createError({ endpoint: request.method + '-' + request.url }));
 
     var shipments;
+    // Case 2: A service ID was specified. Return shipments related to that service only. Exclude the serviceID from each shipment object.
     if (serviceID) {
         shipments = await ShipmentModel.find({ serviceID: serviceID }).lean();
         shipments = shipments.map((shipment) => {
             const { __v, _id, serviceID, ...updatedShipment } = shipment; return updatedShipment;
         });
     }
+    // Case 3: A service ID was not specified. Return all shipments. Attach the serviceID to each shipment object.
     else {
         shipments = await ShipmentModel.find({}).lean();
         shipments = shipments.map((shipment) => {

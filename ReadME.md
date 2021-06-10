@@ -1,10 +1,11 @@
 # Internship - ZtarMobile
 ## API Endpoints
-	1. Post a shipment to one of the following services: [fedex, ups]
+	1. Post a shipment to the allowed services.
 - **Request Endpoint:** /shipments/:serviceID.
 - **Method/HTTP Verb:** POST.
 - **Request Content-Type:** application/json.
-- **Request parameter error:** If the serviceID value is not equal to either [fedex, ups], the response sends back a message `Service IDs should be one of the following: fedex,ups` with status code `400`.
+- **Request parameter error:** If the serviceID value is not equal to either [fedex, ups]\<allowed-services>, the response sends back a message `You can not POST shipments with this service ID in the request.params. Service ID should be one of the following:
+[fedex,ups]<allowed-services>.` with status code `400`.
 - **Request body for fedex:**
 
 ```json
@@ -14,7 +15,7 @@
 		"width": {
 			"value": "",
 			"unit": ""
-		}
+		},
 		"height": {
 			"value": "",
 			"unit": ""
@@ -34,12 +35,12 @@
 
 ```json
 {
-	"carrierServiceID": "",
-	"packageDetails": {
+	"shipmentServiceID": "",
+	"package": {
 		"width": {
 			"value": "",
 			"unit": ""
-		}
+		},
 		"height": {
 			"value": "",
 			"unit": ""
@@ -66,20 +67,21 @@
    - **`packageDetails.weight.value`** --> [Numeric].
    - **`packageDetails.weight.unit`** --> [String, equal to [gram]].
 - **Validation for ups:**
-   - **`carrierServiceID`** --> [String, is in [UPSExpress, UPS2DAY]].
-   - **`packageDetails.width.value`** --> [Numeric].
-   - **`packageDetails.width.unit`** --> [String, equal to [inch]].
-   - **`packageDetails.height.value`** --> [Numeric].
-   - **`packageDetails.height.unit`** --> [String, equal to [inch]].
-   - **`packageDetails.length.value`** --> [Numeric].
-   - **`packageDetails.length.unit`** --> [String, equal to [inch]].
-   - **`packageDetails.weight.value`** --> [Numeric].
-   - **`packageDetails.weight.unit`** --> [String, equal to [pound]].
+   - **`shipmentServiceID`** --> [String, is in [UPSExpress, UPS2DAY]].
+   - **`package.width.value`** --> [Numeric].
+   - **`package.width.unit`** --> [String, equal to [inch]].
+   - **`package.height.value`** --> [Numeric].
+   - **`package.height.unit`** --> [String, equal to [inch]].
+   - **`package.length.value`** --> [Numeric].
+   - **`package.length.unit`** --> [String, equal to [inch]].
+   - **`package.weight.value`** --> [Numeric].
+   - **`package.weight.unit`** --> [String, equal to [pound]].
 - **Validation response** --> status code: 400, response body:
 ```json
 {
 	"missingFieldsErrors": [],
-	"validationErrors": []
+	"validationErrors": [],
+	"serviceID": ""
 }
 ```
 - **Example validation response body:**
@@ -110,7 +112,8 @@
             "message": "Weight unit should be equal to gram",
             "property": "packageDetails.weight.unit"
         }
-    ]
+    ],
+    "serviceID": "fedex"
 }
 ```
 - **Success response** --> status code: 200, response body:
@@ -122,13 +125,12 @@ Shipment to <serviceID> completed successfully!
 - **Request Endpoint:** /shipments.
 - **Method/HTTP Verb:** GET.
 - **Request optional query:** ?serviceID=\<serviceID>.
-- **Request parameter error:** If the user specified a serviceID and the value is not equal to either [fedex, ups], the response sends back a message `Service IDs should be one of the following: fedex,ups` with status code `400`.
-- **Response body (status code 200 with either shipments if there are any or empty response body if no shipments were found):**
+- **Request query error:** If the user specified a serviceID and the value is not equal to either [fedex, ups]\<allowed-services>, the response sends back a message `You can not GET shipments with this service ID in the request.query. Service ID should be one of the following:[fedex,ups]<allowed-services>.` with status code `400`.
+- **Response body for a particular service shipments (status code 200 with either shipments if there are any or empty response body if no shipments were found):**
 
 ```json
 [
 	{
-	"serviceID" : "fedex",
 	"serviceType": "fedexGround",
 	"widthUnit": "cm",
 	"widthValue": 3,
@@ -143,7 +145,6 @@ Shipment to <serviceID> completed successfully!
 	},
 
 	{
-	"serviceID": "fedex",
 	"serviceType": "fedexGround",
 	"widthUnit": "cm",
 	"widthValue": 3,
@@ -156,5 +157,53 @@ Shipment to <serviceID> completed successfully!
 	"createdAt": "2021-06-09T15:14:12.926Z",
 	"updatedAt": "2021-06-09T15:14:12.926Z"
 	}
+]
+```
+- **Response body for all services (status code 200 with either shipments if there are any [each shipment object has the serviceID attached to it] or empty response body if no shipments were found):**
+
+```javascript
+[
+    {
+        "serviceID": "fedex",
+        "serviceType": "fedexGround",
+        "widthUnit": "cm",
+        "widthValue": 3,
+        "heightUnit": "cm",
+        "heightValue": 2,
+        "lengthUnit": "cm",
+        "lengthValue": 2,
+        "weightUnit": "gram",
+        "weightValue": 5,
+        "createdAt": "2021-06-09T15:13:23.318Z",
+        "updatedAt": "2021-06-09T15:13:23.318Z"
+    },
+    {
+        "serviceID": "fedex",
+        "serviceType": "fedexGround",
+        "widthUnit": "cm",
+        "widthValue": 3,
+        "heightUnit": "cm",
+        "heightValue": 2,
+        "lengthUnit": "cm",
+        "lengthValue": 2,
+        "weightUnit": "gram",
+        "weightValue": 5,
+        "createdAt": "2021-06-09T15:14:12.926Z",
+        "updatedAt": "2021-06-09T15:14:12.926Z"
+    },
+    {
+        "serviceID": "ups",
+        "serviceType": "UPSExpress",
+        "widthUnit": "inch",
+        "widthValue": 3,
+        "heightUnit": "inch",
+        "heightValue": 2,
+        "lengthUnit": "inch",
+        "lengthValue": 2,
+        "weightUnit": "pound",
+        "weightValue": 5,
+        "createdAt": "2021-06-09T16:06:39.056Z",
+        "updatedAt": "2021-06-09T16:06:39.056Z"
+    }
 ]
 ```
