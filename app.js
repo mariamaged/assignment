@@ -10,15 +10,17 @@ var app = express();
 
 app.set("port", process.env.PORT || 3000);
 
-app.use(logger("dev"));
+//app.use(logger("dev"));
 app.use(express.json());
 
 app.post("/shipments/:serviceID", async function (request, response) {
     const serviceID = request.params.serviceID, req = request.body;
 
     // Case 1: Service ID not allowed.
-    if (!allowedServices.includes(serviceID))
+    if (!allowedServices.includes(serviceID)) {
+        response.set('Content-Type', 'text/plain')
         return response.status(400).send(ErrorFactory.createError({ endpoint: request.method + '-' + request.url }));
+    }
 
     var factory = ErrorFactory.createError({ endpoint: request.method + '-' + request.url, serviceID: serviceID });
     var result = factory.schema.validate(req, {
@@ -41,6 +43,7 @@ app.post("/shipments/:serviceID", async function (request, response) {
             lengthUnit: packageInfo.length.unit, lengthValue: packageInfo.length.value,
             weightUnit: packageInfo.weight.unit, weightValue: packageInfo.weight.value
         }).save();
+    response.set('Content-Type', 'text/plain')
     response.status(200).send(`Shipment to ${serviceID} completed successfully!`);
 });
 
@@ -67,23 +70,54 @@ app.get("/shipments", async function (request, response) {
         });
     }
 
-    if (shipments.length != 0) response.status(200).send(shipments);
+    if (shipments.length != 0) response.status(200).json(shipments);
     else response.status(200).end();
 });
 
+app.delete("/shipments", async function (request, response) {
+    const serviceID = request.query.serviceID;
+
+    // Case 1: Service ID not allowed..
+    if (serviceID && !allowedServices.includes(serviceID))
+        return response.status(400).send(ErrorFactory.createError({ endpoint: request.method + '-' + request.url }));
+
+    // Case 2: A service ID was specified. Delete shipments related to that service only.
+    if (serviceID) {
+        await ShipmentModel.remove({ serviceID: serviceID });
+    }
+    // Case 3: A service ID was not specified. Delete all shipments.
+    else {
+        await ShipmentModel.remove();
+    }
+
+    response.status(204).end();
+});
+
 app.use(function (request, response) {
-    response.status(404).send("404");
+    response.status(404)
+        .send("404: API endpoints: POST /shipments/:serviceID, GET /shipments(optional: ?serviceID=), DELETE /shipments(optional: ?serviceID=)");
 });
 
 http.createServer(app).listen(app.get("port"), function () {
     console.log("Shipment app started on port " + app.get("port"));
 });
 
+const url = 'mongodb://localhost:27017';
 try {
-    mongoose.connect(process.env.MONGO_ATLAS_URL,
-        { useNewUrlParser: true, useUnifiedTopology: true },
-        () => console.log("Mongoose is connected"));
+    if (process.env.MONGO_ATLAS_URL) {
+        mongoose.connect(process.env.MONGO_ATLAS_URL,
+            { useNewUrlParser: true, useUnifiedTopology: true },
+            () => console.log("Cloud Mongo Atlas is connected."));
+    }
+    else {
+        mongoose.connect(url,
+            { useNewUrlParser: true, useUnifiedTopology: true },
+            () => console.log("Local MongoDB is connected."));
+    }
 
 } catch (e) {
-    console.log("Could not connect to the database");
+    console.log("Could not connect to the database.");
+    console.log(e);
 }
+
+module.exports = app;

@@ -58,23 +58,23 @@
 ```
 - **Validation for fedex:**
    - **`carrierServiceID`** --> [String, is in [fedexGround, fedexAIR].
-   - **`packageDetails.width.value`** --> [Numeric].
+   - **`packageDetails.width.value`** --> [Numeric, greater than [0]].
    - **`packageDetails.width.unit`** --> [String, equal to [cm]].
-   - **`packageDetails.height.value`** --> [Numeric].
+   - **`packageDetails.height.value`** --> [Numeric, greater than [0]].
    - **`packageDetails.height.unit`** --> [String, equal to [cm]].
-   - **`packageDetails.length.value`** --> [Numeric].
+   - **`packageDetails.length.value`** --> [Numeric, greater than [0]].
    - **`packageDetails.length.unit`** --> [String, equal to [cm]].
-   - **`packageDetails.weight.value`** --> [Numeric].
+   - **`packageDetails.weight.value`** --> [Numeric, greater than [0]].
    - **`packageDetails.weight.unit`** --> [String, equal to [gram]].
 - **Validation for ups:**
    - **`shipmentServiceID`** --> [String, is in [UPSExpress, UPS2DAY]].
-   - **`package.width.value`** --> [Numeric].
+   - **`package.width.value`** --> [Numeric, greater than [0]].
    - **`package.width.unit`** --> [String, equal to [inch]].
-   - **`package.height.value`** --> [Numeric].
+   - **`package.height.value`** --> [Numeric, greater than [0]].
    - **`package.height.unit`** --> [String, equal to [inch]].
-   - **`package.length.value`** --> [Numeric].
+   - **`package.length.value`** --> [Numeric, greater than [0]].
    - **`package.length.unit`** --> [String, equal to [inch]].
-   - **`package.weight.value`** --> [Numeric].
+   - **`package.weight.value`** --> [Numeric, greater than [0]].
    - **`package.weight.unit`** --> [String, equal to [pound]].
 - **Validation response** --> status code: 400, response body:
 ```json
@@ -207,3 +207,10 @@ Shipment to <serviceID> completed successfully!
     }
 ]
 ```
+***
+	2. Delete shipment done to a particular service or all services.
+- **Request Endpoint:** /shipments.
+- **Method/HTTP Verb:** DELETE.
+- **Request optional query:** ?serviceID=\<serviceID>.
+- **Request query error:** If the user specified a serviceID and the value is not equal to either [fedex, ups]\<allowed-services>, the response sends back a message `You can not DELETE shipments with this service ID in the request.query. Service ID should be one of the following:[fedex,ups]<allowed-services>.` with status code `400`.
+- **Response status code:** 204.

@@ -7,12 +7,14 @@ class ShipmentError {
     static detailsTemplate = "{{quantity}} unit should be equal to {{unit}}.";
     static dataTypeTemplate = "Data type invalid: should be {{datatype}}.";
     static invalidServiceTemplate = "You can not {{httpverb}} shipments with this service ID in the {{location}}. Service ID should be one of the following: [{{services}}].";
-
-    // Aggregate all error messages of missing fields into one array.
-    // And all validation error messages into one array. 
-    // [All validation error message related to a single property are compiled together.]
-    // Return an object consisting of these arrays.
-    // Override for each service adding to the object the name of the service.
+    static incorrectNumberRange = "Number out of range. Value should be {{inorexLeft}} {{first}}, {{second}} {{inorexRight}}.";
+    /* 
+    Aggregate all error messages of missing fields into one array.
+    And all validation error messages into one array. 
+    [All validation error message related to a single property are compiled together.]
+    Return an object consisting of these arrays.
+    Override for each service adding to the object the name of the service.
+    **/
     updateErrorMessages(errorsArray) {
         var missingFieldsErrors = [], validationErrors = [];
         errorsArray.forEach((error) => {
@@ -56,8 +58,9 @@ class FedexShipmentError extends ShipmentError {
             packageDetails: Joi.object().keys(
                 {
                     width: Joi.object().keys({
-                        value: Joi.number().required().messages({
-                            'number.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "Numeric" })
+                        value: Joi.number().greater(0).required().messages({
+                            'number.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "Numeric" }),
+                            'number.greater': mustache.render(FedexShipmentError.incorrectNumberRange, { inorexLeft: "(", first: "0", second: " ", inorexRight: ")" })
                         }),
                         unit: Joi.string().valid(data.widthUnit).required().messages({
                             'string.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "String" }),
@@ -66,8 +69,9 @@ class FedexShipmentError extends ShipmentError {
                     }).required(),
 
                     height: Joi.object().keys({
-                        value: Joi.number().required().messages({
-                            'number.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "Numeric" })
+                        value: Joi.number().greater(0).required().messages({
+                            'number.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "Numeric" }),
+                            'number.greater': mustache.render(FedexShipmentError.incorrectNumberRange, { inorexLeft: "(", first: "0", second: " ", inorexRight: ")" })
                         }),
                         unit: Joi.string().valid(data.heightUnit).required().messages({
                             'string.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "String" }),
@@ -76,8 +80,9 @@ class FedexShipmentError extends ShipmentError {
                     }).required(),
 
                     length: Joi.object().keys({
-                        value: Joi.number().required().messages({
-                            'number.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "Numeric" })
+                        value: Joi.number().greater(0).required().messages({
+                            'number.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "Numeric" }),
+                            'number.greater': mustache.render(FedexShipmentError.incorrectNumberRange, { inorexLeft: "(", first: "0", second: " ", inorexRight: ")" })
                         }),
                         unit: Joi.string().valid(data.lengthUnit).required().messages({
                             'string.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "String" }),
@@ -86,8 +91,9 @@ class FedexShipmentError extends ShipmentError {
                     }).required(),
 
                     weight: Joi.object().keys({
-                        value: Joi.number().required().messages({
-                            'number.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "Numeric" })
+                        value: Joi.number().greater(0).required().messages({
+                            'number.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "Numeric" }),
+                            'number.greater': mustache.render(FedexShipmentError.incorrectNumberRange, { inorexLeft: "(", first: "0", second: " ", inorexRight: ")" })
                         }),
                         unit: Joi.string().valid(data.weightUnit).required().messages({
                             'string.base': mustache.render(FedexShipmentError.dataTypeTemplate, { datatype: "String" }),
@@ -121,8 +127,9 @@ class UPSShipmentError extends ShipmentError {
             package: Joi.object().keys(
                 {
                     width: Joi.object().keys({
-                        value: Joi.number().required().messages({
-                            'number.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "Numeric" })
+                        value: Joi.number().greater(0).required().messages({
+                            'number.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "Numeric" }),
+                            'number.greater': mustache.render(UPSShipmentError.incorrectNumberRange, { inorexLeft: "(", first: "0", second: " ", inorexRight: ")" })
                         }),
                         unit: Joi.string().valid(data.widthUnit).required().messages({
                             'string.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "String" }),
@@ -131,8 +138,9 @@ class UPSShipmentError extends ShipmentError {
                     }).required(),
 
                     height: Joi.object().keys({
-                        value: Joi.number().required().messages({
-                            'number.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "Numeric" })
+                        value: Joi.number().greater(0).required().messages({
+                            'number.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "Numeric" }),
+                            'number.greater': mustache.render(UPSShipmentError.incorrectNumberRange, { inorexLeft: "(", first: "0", second: " ", inorexRight: ")" })
                         }),
                         unit: Joi.string().valid(data.heightUnit).required().messages({
                             'string.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "String" }),
@@ -141,8 +149,9 @@ class UPSShipmentError extends ShipmentError {
                     }).required(),
 
                     length: Joi.object().keys({
-                        value: Joi.number().required().messages({
-                            'number.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "Numeric" })
+                        value: Joi.number().greater(0).required().messages({
+                            'number.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "Numeric" }),
+                            'number.greater': mustache.render(UPSShipmentError.incorrectNumberRange, { inorexLeft: "(", first: "0", second: " ", inorexRight: ")" })
                         }),
                         unit: Joi.string().valid(data.lengthUnit).required().messages({
                             'string.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "String" }),
@@ -151,8 +160,9 @@ class UPSShipmentError extends ShipmentError {
                     }).required(),
 
                     weight: Joi.object().keys({
-                        value: Joi.number().required().messages({
-                            'number.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "Numeric" })
+                        value: Joi.number().greater(0).required().messages({
+                            'number.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "Numeric" }),
+                            'number.greater': mustache.render(UPSShipmentError.incorrectNumberRange, { inorexLeft: "(", first: "0", second: " ", inorexRight: ")" })
                         }),
                         unit: Joi.string().valid(data.weightUnit).required().messages({
                             'string.base': mustache.render(UPSShipmentError.dataTypeTemplate, { datatype: "String" }),
@@ -188,11 +198,17 @@ class ErrorFactory {
                     heightUnit: "inch",
                     weightUnit: "pound"
                 });
-                default: return mustache.render(ShipmentError.invalidServiceTemplate, { httpverb: 'POST', location: 'request.params', services: allowedServices });
+                default: return mustache.render(ShipmentError.invalidServiceTemplate,
+                    { httpverb: 'POST', location: 'request.params', services: allowedServices });
             }
         }
         if (data.endpoint.startsWith('GET-/shipments')) {
-            return mustache.render(ShipmentError.invalidServiceTemplate, { httpverb: 'GET', location: 'request.query', services: allowedServices });
+            return mustache.render(ShipmentError.invalidServiceTemplate,
+                { httpverb: 'GET', location: 'request.query', services: allowedServices });
+        }
+        if (data.endpoint.startsWith('DELETE-/shipments')) {
+            return mustache.render(ShipmentError.invalidServiceTemplate,
+                { httpverb: 'DELETE', location: 'request.query', services: allowedServices });
         }
     }
 }
