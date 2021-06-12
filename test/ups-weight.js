@@ -1,29 +1,27 @@
-var { fedexG, fedexA } = require('./POSTShipment.js');
+var { upsDay, upsExpress } = require('./POSTShipment.js');
 var request = require('supertest');
 var app = require("../app.js");
 var async = require('async');
 var { clone, compareEquality } = require('../utils/objectUtilities.js');
 
-var fedexG1, fedexA1;
-
-describe('Fedex width data validations', function () {
-    // After each test changing a small attribute of the correct body, reassign a fresh copy of the body to the variables again.
+var upsExpress1, upsDay1;
+describe('UPS weight data validations', function () {
     beforeEach(function () {
-        fedexA1 = (function () { return clone(fedexA); })();
-        fedexG1 = (function () { return clone(fedexG); })();
+        upsDay1 = (function () { return clone(upsDay); })();
+        upsExpress1 = (function () { return clone(upsExpress); })();
     });
 
     it('detects the absence of unit property.', function (done) {
         var validation = [
-            { message: '"packageDetails.width.unit" is required', property: 'packageDetails.width.unit' }];
+            { message: '"package.weight.unit" is required', property: 'package.weight.unit' }];
 
         async.series([
             (cb) => {
-                delete fedexA1.packageDetails.width.unit;
+                delete upsDay1.package.weight.unit;
 
                 request(app)
-                    .post("/shipments/fedex")
-                    .send(fedexA1)
+                    .post("/shipments/ups")
+                    .send(upsDay1)
                     .expect(400)
                     .expect("Content-Type", /application\/json/)
                     .expect(function (res) {
@@ -36,11 +34,11 @@ describe('Fedex width data validations', function () {
                     .end((err, res) => { if (err) throw err }); cb(null);
             },
             (cb) => {
-                delete fedexG1.packageDetails.width.unit;
+                delete upsExpress1.package.weight.unit;
 
                 request(app)
-                    .post('/shipments/fedex')
-                    .send(fedexG1)
+                    .post('/shipments/ups')
+                    .send(upsExpress1)
                     .expect(400)
                     .expect("Content-Type", /application\/json/)
                     .expect(function (res) {
@@ -58,15 +56,15 @@ describe('Fedex width data validations', function () {
 
     it('detects the absence of value property.', function (done) {
         var validation = [
-            { message: '"packageDetails.width.value" is required', property: 'packageDetails.width.value' }];
+            { message: '"package.weight.value" is required', property: 'package.weight.value' }];
 
         async.series([
             (cb) => {
-                delete fedexA1.packageDetails.width.value;
+                delete upsDay1.package.weight.value;
 
                 request(app)
-                    .post("/shipments/fedex")
-                    .send(fedexA1)
+                    .post("/shipments/ups")
+                    .send(upsDay1)
                     .expect(400)
                     .expect("Content-Type", /application\/json/)
                     .expect(function (res) {
@@ -79,11 +77,11 @@ describe('Fedex width data validations', function () {
                     .end((err, res) => { if (err) throw err }); cb(null);
             },
             (cb) => {
-                delete fedexG1.packageDetails.width.value;
+                delete upsExpress1.package.weight.value;
 
                 request(app)
-                    .post('/shipments/fedex')
-                    .send(fedexG1)
+                    .post('/shipments/ups')
+                    .send(upsExpress1)
                     .expect(400)
                     .expect("Content-Type", /application\/json/)
                     .expect(function (res) {
@@ -99,17 +97,17 @@ describe('Fedex width data validations', function () {
 
     });
 
-    it('detects the absence of width property.', function (done) {
+    it('detects the absence of weight property.', function (done) {
         var validation = [
-            { message: '"packageDetails.width" is required', property: 'packageDetails.width' }];
+            { message: '"package.weight" is required', property: 'package.weight' }];
 
         async.series([
             (cb) => {
-                delete fedexA1.packageDetails.width;
+                delete upsDay1.package.weight;
 
                 request(app)
-                    .post("/shipments/fedex")
-                    .send(fedexA1)
+                    .post("/shipments/ups")
+                    .send(upsDay1)
                     .expect(400)
                     .expect("Content-Type", /application\/json/)
                     .expect(function (res) {
@@ -122,11 +120,11 @@ describe('Fedex width data validations', function () {
                     .end((err, res) => { if (err) throw err }); cb(null);
             },
             (cb) => {
-                delete fedexG1.packageDetails.width;
+                delete upsExpress1.package.weight;
 
                 request(app)
-                    .post('/shipments/fedex')
-                    .send(fedexG1)
+                    .post('/shipments/ups')
+                    .send(upsExpress1)
                     .expect(400)
                     .expect("Content-Type", /application\/json/)
                     .expect(function (res) {
@@ -142,18 +140,18 @@ describe('Fedex width data validations', function () {
 
     });
 
-    it('does not allow the unit to be non string and unequal to cm. ' +
+    it('does not allow the unit to be non string and unequal to pound. ' +
         'Status code: 400. Content-Type: application/json. Correct Response Message for value 2.', function (done) {
             var validation = [
-                { message: 'Data type invalid: should be String.', invalidValue: 2, property: 'packageDetails.width.unit' },
-                { message: 'Width unit should be equal to cm.', invalidValue: 2, property: 'packageDetails.width.unit' }];
+                { message: 'Data type invalid: should be String.', invalidValue: 2, property: 'package.weight.unit' },
+                { message: 'Weight unit should be equal to pound.', invalidValue: 2, property: 'package.weight.unit' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.unit = 2;
+                    upsDay1.package.weight.unit = 2;
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -167,11 +165,11 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.unit = 2;
+                    upsExpress1.package.weight.unit = 2;
 
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -187,18 +185,18 @@ describe('Fedex width data validations', function () {
             ], done);
         });
 
-    it('does not allow the unit to be non string and unequal to cm. ' +
+    it('does not allow the unit to be non string and unequal to pound. ' +
         'Status code: 400. Content-Type: application/json. Correct Response Message for value null.', function (done) {
             var validation = [
-                { message: 'Data type invalid: should be String.', invalidValue: null, property: 'packageDetails.width.unit' },
-                { message: 'Width unit should be equal to cm.', invalidValue: null, property: 'packageDetails.width.unit' }];
+                { message: 'Data type invalid: should be String.', invalidValue: null, property: 'package.weight.unit' },
+                { message: 'Weight unit should be equal to pound.', invalidValue: null, property: 'package.weight.unit' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.unit = null;
+                    upsDay1.package.weight.unit = null;
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -212,11 +210,11 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.unit = null;
+                    upsExpress1.package.weight.unit = null;
 
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -232,18 +230,18 @@ describe('Fedex width data validations', function () {
             ], done);
         });
 
-    it('does not allow the unit to be non string and unequal to cm. ' +
+    it('does not allow the unit to be non string and unequal to pound. ' +
         'Status code: 400. Content-Type: application/json. Correct Response Message for value false.', function (done) {
             var validation = [
-                { message: 'Data type invalid: should be String.', invalidValue: false, property: 'packageDetails.width.unit' },
-                { message: 'Width unit should be equal to cm.', invalidValue: false, property: 'packageDetails.width.unit' }];
+                { message: 'Data type invalid: should be String.', invalidValue: false, property: 'package.weight.unit' },
+                { message: 'Weight unit should be equal to pound.', invalidValue: false, property: 'package.weight.unit' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.unit = false;
+                    upsDay1.package.weight.unit = false;
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -257,11 +255,11 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.unit = false;
+                    upsExpress1.package.weight.unit = false;
 
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -277,17 +275,17 @@ describe('Fedex width data validations', function () {
             ], done);
         });
 
-    it('does not allow the unit to be non string and unequal to cm. ' +
+    it('does not allow the unit to be unequal to pound. ' +
         'Status code: 400. Content-Type: application/json. Correct Response Message for value "someString".', function (done) {
             var validation = [
-                { message: 'Width unit should be equal to cm.', invalidValue: "someString", property: 'packageDetails.width.unit' }];
+                { message: 'Weight unit should be equal to pound.', invalidValue: "someString", property: 'package.weight.unit' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.unit = "someString";
+                    upsDay1.package.weight.unit = "someString";
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -299,11 +297,11 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.unit = "someString";
+                    upsExpress1.package.weight.unit = "someString";
 
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -317,17 +315,17 @@ describe('Fedex width data validations', function () {
             ], done);
         });
 
-    it('does not allow the unit to be non string and unequal to cm. ' +
-        'Status code: 400. Content-Type: application/json. Correct Response Message for value "inch".', function (done) {
+    it('does not allow the unit to be unequal to pound. ' +
+        'Status code: 400. Content-Type: application/json. Correct Response Message for value "gram".', function (done) {
             var validation = [
-                { message: 'Width unit should be equal to cm.', invalidValue: "inch", property: 'packageDetails.width.unit' }];
+                { message: 'Weight unit should be equal to pound.', invalidValue: "gram", property: 'package.weight.unit' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.unit = "inch";
+                    upsDay1.package.weight.unit = "gram";
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -339,11 +337,11 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.unit = "inch";
+                    upsExpress1.package.weight.unit = "gram";
 
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -357,17 +355,17 @@ describe('Fedex width data validations', function () {
             ], done);
         });
 
-    it('does not allow the value to smaller than 0. ' +
+    it('does not allow the value to be smaller than 0. ' +
         'Status code: 400. Content-Type: application/json. Correct Response Message for value -1.', function (done) {
             var validation = [
-                { message: 'Number out of range. Value should be ( 0,   ).', invalidValue: -1, property: 'packageDetails.width.value' }];
+                { message: 'Number out of range. Value should be ( 0,   ).', invalidValue: -1, property: 'package.weight.value' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.value = -1;
+                    upsDay1.package.weight.value = -1;
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -379,10 +377,10 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.value = -1;
+                    upsExpress1.package.weight.value = -1;
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -394,17 +392,17 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 }], done);
         });
-    it('does not allow the value to smaller than 0. ' +
+    it('does not allow the value to be smaller than 0. ' +
         'Status code: 400. Content-Type: application/json. Correct Response Message for value 0.', function (done) {
             var validation = [
-                { message: 'Number out of range. Value should be ( 0,   ).', invalidValue: 0, property: 'packageDetails.width.value' }];
+                { message: 'Number out of range. Value should be ( 0,   ).', invalidValue: 0, property: 'package.weight.value' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.value = 0;
+                    upsDay1.package.weight.value = 0;
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -416,10 +414,10 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.value = 0;
+                    upsExpress1.package.weight.value = 0;
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -433,17 +431,17 @@ describe('Fedex width data validations', function () {
             ], done);
         });
 
-    it('does not allow the value to smaller than 0. ' +
+    it('does not allow the value to be a non-number value. ' +
         'Status code: 400. Content-Type: application/json. Correct Response Message for value "someString".', function (done) {
             var validation = [
-                { message: 'Data type invalid: should be Numeric.', invalidValue: "someString", property: 'packageDetails.width.value' }];
+                { message: 'Data type invalid: should be Numeric.', invalidValue: "someString", property: 'package.weight.value' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.value = "someString";
+                    upsDay1.package.weight.value = "someString";
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -455,10 +453,10 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.value = "someString";
+                    upsExpress1.package.weight.value = "someString";
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -472,17 +470,17 @@ describe('Fedex width data validations', function () {
             ], done);
         });
 
-    it('does not allow the value to smaller than 0. ' +
+    it('does not allow the value to be a non-number value. ' +
         'Status code: 400. Content-Type: application/json. Correct Response Message for value null.', function (done) {
             var validation = [
-                { message: 'Data type invalid: should be Numeric.', invalidValue: null, property: 'packageDetails.width.value' }];
+                { message: 'Data type invalid: should be Numeric.', invalidValue: null, property: 'package.weight.value' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.value = null;
+                    upsDay1.package.weight.value = null;
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -494,10 +492,10 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.value = null;
+                    upsExpress1.package.weight.value = null;
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -511,17 +509,17 @@ describe('Fedex width data validations', function () {
             ], done);
         });
 
-    it('does not allow the value to smaller than 0. ' +
+    it('does not allow the value to be a non-number value. ' +
         'Status code: 400. Content-Type: application/json. Correct Response Message for value false.', function (done) {
             var validation = [
-                { message: 'Data type invalid: should be Numeric.', invalidValue: false, property: 'packageDetails.width.value' }];
+                { message: 'Data type invalid: should be Numeric.', invalidValue: false, property: 'package.weight.value' }];
             async.series([
                 (cb) => {
-                    fedexA1.packageDetails.width.value = false;
+                    upsDay1.package.weight.value = false;
 
                     request(app)
-                        .post("/shipments/fedex")
-                        .send(fedexA1)
+                        .post("/shipments/ups")
+                        .send(upsDay1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {
@@ -533,10 +531,10 @@ describe('Fedex width data validations', function () {
                         .end((err, res) => { if (err) throw err }); cb(null);
                 },
                 (cb) => {
-                    fedexG1.packageDetails.width.value = false;
+                    upsExpress1.package.weight.value = false;
                     request(app)
-                        .post('/shipments/fedex')
-                        .send(fedexG1)
+                        .post('/shipments/ups')
+                        .send(upsExpress1)
                         .expect(400)
                         .expect("Content-Type", /application\/json/)
                         .expect(function (res) {

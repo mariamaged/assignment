@@ -1,4 +1,4 @@
-# Internship - ZtarMobile
+# Internship
 ## API Endpoints
 	1. Post a shipment to the allowed services.
 - **Request Endpoint:** /shipments/:serviceID.
