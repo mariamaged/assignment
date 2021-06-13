@@ -211,7 +211,7 @@ Shipment to <serviceID> completed successfully!
 ]
 ```
 ***
-	2. Delete shipment done to a particular service or all services.
+	3. Delete shipment done to a particular service or all services.
 - **Request Endpoint:** /shipments.
 - **Method/HTTP Verb:** DELETE.
 - **Request optional query:** ?serviceID=\<serviceID>.
