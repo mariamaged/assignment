@@ -1,4 +1,8 @@
 # Internship
+## Steps
+- Create a file called .env, and add the mongo compass url into a variable called MONGO_ATLAS_URL=\<the-url>.
+- Run npm install.
+- Run npm start to run the server or npm test to run the tests in the test folder.
 ## API Endpoints
 	1. Post a shipment to the allowed services.
 - **Request Endpoint:** /shipments/:serviceID.
@@ -67,7 +71,7 @@
    - **`packageDetails.weight.value`** --> [Numeric, greater than [0]].
    - **`packageDetails.weight.unit`** --> [String, equal to [gram]].
 - **Validation for ups:**
-   - **`shipmentServiceID`** --> [String, is in [UPSExpress, UPS2DAY]].
+   - **`shipmentServiceID`** --> [String, is in [UPS2DAY, UPSExpress]].
    - **`package.width.value`** --> [Numeric, greater than [0]].
    - **`package.width.unit`** --> [String, equal to [inch]].
    - **`package.height.value`** --> [Numeric, greater than [0]].
@@ -97,19 +101,19 @@
         {
             "invalidValue": 2,
             "message": [
-                "Height unit should be equal to cm",
-                "Data type invalid: should be String"
+                "Height unit should be equal to cm.",
+                "Data type invalid: should be String."
             ],
             "property": "packageDetails.height.unit"
         },
         {
             "invalidValue": "five",
-            "message": "Data type invalid: should be Numeric",
+            "message": "Data type invalid: should be Numeric.",
             "property": "packageDetails.weight.value"
         },
         {
             "invalidValue": "pound",
-            "message": "Weight unit should be equal to gram",
+            "message": "Weight unit should be equal to gram.",
             "property": "packageDetails.weight.unit"
         }
     ],

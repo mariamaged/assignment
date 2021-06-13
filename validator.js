@@ -192,7 +192,7 @@ class ErrorFactory {
                     weightUnit: "gram"
                 });;
                 case 'ups': return new UPSShipmentError({
-                    serviceTypeList: ['UPSExpress', 'UPS2DAY'],
+                    serviceTypeList: ['UPS2DAY', 'UPSExpress'],
                     widthUnit: "inch",
                     lengthUnit: "inch",
                     heightUnit: "inch",

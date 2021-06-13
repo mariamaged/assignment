@@ -127,7 +127,7 @@ describe("POST-/shipments/:serviceID correct serviceID and correct request body"
     });
 });
 
-
+// Correct response body.
 var fedexG = {
     carrierServiceID: 'fedexGround',
     packageDetails: {
