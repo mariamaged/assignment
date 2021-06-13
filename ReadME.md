@@ -1,4 +1,3 @@
-# Internship
 ## Steps
 - Create a file called .env, and add the mongo compass url into a variable called MONGO_ATLAS_URL=\<the-url>.
 - Run npm install.
